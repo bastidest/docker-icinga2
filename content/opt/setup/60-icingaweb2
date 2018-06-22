@@ -40,7 +40,7 @@ icingacli module enable monitoring
 icingacli module enable doc
 
 # Create MySQL user on localhost or test given connection
-echo "=> Creating MySQL user on localhost or test given connection"
+echo "=> Creating MySQL database '${ICINGAWEB2_MYSQL_DATA}' on localhost or test given connection"
 if [ "${ICINGA2_IDO_MYSQL_HOST}" == "localhost" ]; then
 	echo "==> localhost"
 	mysql_root <<-END
