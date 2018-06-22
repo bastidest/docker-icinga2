@@ -3,8 +3,6 @@
 
 FROM debian:stretch
 
-MAINTAINER Jordan Jethwa
-
 ENV APACHE2_HTTP=REDIRECT \
     ICINGA2_FEATURE_GRAPHITE=false \
     ICINGA2_FEATURE_GRAPHITE_HOST=graphite \
@@ -14,6 +12,14 @@ ENV APACHE2_HTTP=REDIRECT \
     ICINGA2_FEATURE_DIRECTOR="true" \
     ICINGA2_FEATURE_DIRECTOR_KICKSTART="true" \
     ICINGA2_FEATURE_DIRECTOR_USER="icinga2-director"
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y locales
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8 
 
 RUN export DEBIAN_FRONTEND=noninteractive \
      && apt-get update \
@@ -29,6 +35,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
           mailutils \
           mariadb-client \
           mariadb-server \
+          php7.0 \
           php-curl \
           php-ldap \
           php-mysql \
@@ -40,26 +47,60 @@ RUN export DEBIAN_FRONTEND=noninteractive \
           supervisor \
           unzip \
           wget \
+          git \
      && apt-get clean \
-     && rm -rf /var/lib/apt/lists/*
+     && rm -rf /var/lib/apt/lists/* 
 
 RUN export DEBIAN_FRONTEND=noninteractive \
-     && curl -s https://packages.icinga.com/icinga.key \
-     | apt-key add - \
-     && echo "deb http://packages.icinga.org/debian icinga-$(lsb_release -cs) main" > /etc/apt/sources.list.d/icinga2.list \
-     && export DEBIAN_FRONTEND=noninteractive \
-     && apt-get update \
-     && apt-get install -y --no-install-recommends \
-          icinga2 \
-          icinga2-ido-mysql \
-          icingacli \
-          icingaweb2 \
-          monitoring-plugins \
-          nagios-nrpe-plugin \
-          nagios-snmp-plugins \
-          nagios-plugins-contrib \
-     && apt-get clean \
-     && rm -rf /var/lib/apt/lists/*
+    && cd /usr/share \
+    && apt-get update \
+    && apt-get install -y cmake build-essential pkg-config libssl-dev libboost-all-dev bison flex \
+        libsystemd-dev default-libmysqlclient-dev libpq-dev libyajl-dev libedit-dev \
+    && apt-get clean \
+    && groupadd icinga \
+    && groupadd icingacmd \
+    && useradd -c "icinga" -s /sbin/nologin -G icingacmd -g icinga icinga \
+    && usermod -a -G icingacmd www-data \
+    && git clone https://github.com/Icinga/icinga2.git icinga2 \
+    && cd icinga2 \
+    && mkdir build && cd build \
+    && cmake .. \
+    && make \
+    && make install
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && cd /usr/share/ \
+    && git clone https://github.com/Icinga/icingaweb2.git icingaweb2 \
+    && addgroup --system icingaweb2 \
+    && ln -s /usr/share/icingaweb2/bin/icingacli /usr/bin/icingacli \
+    && apt-get update && apt-get install -y php-cli php-htmlpurifier
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        monitoring-plugins \
+        nagios-nrpe-plugin \
+        nagios-snmp-plugins \
+        nagios-plugins-contrib \
+     && apt-get clean
+
+# RUN export DEBIAN_FRONTEND=noninteractive \
+#      && curl -s https://packages.icinga.com/icinga.key \
+#      | apt-key add - \
+#      && echo "deb http://packages.icinga.org/debian icinga-$(lsb_release -cs) main" > /etc/apt/sources.list.d/icinga2.list \
+#      && export DEBIAN_FRONTEND=noninteractive \
+#      && apt-get update \
+#      && apt-get install -y --no-install-recommends \
+#           icinga2 \
+#           icinga2-ido-mysql \
+#           icingacli \
+#           icingaweb2 \
+#           monitoring-plugins \
+#           nagios-nrpe-plugin \
+#           nagios-snmp-plugins \
+#           nagios-plugins-contrib \
+#      && apt-get clean \
+#      && rm -rf /var/lib/apt/lists/*
 
 ARG GITREF_ICINGAWEB2=master
 ARG GITREF_DIRECTOR=master
@@ -91,19 +132,15 @@ ADD content/ /
 
 # Final fixes
 RUN true \
-    && sed -i 's/vars\.os.*/vars.os = "Docker"/' /etc/icinga2/conf.d/hosts.conf \
-    && mv /etc/icingaweb2/ /etc/icingaweb2.dist \
-    && mkdir /etc/icingaweb2 \
-    && mv /etc/icinga2/ /etc/icinga2.dist \
-    && mkdir /etc/icinga2 \
+    && mv /usr/local/etc/icinga2/ /usr/local/etc/icinga2.dist \
+    && mkdir -p /usr/local/etc/icinga2 \
     && usermod -aG icingaweb2 www-data \
-    && usermod -aG nagios www-data \
     && rm -rf \
         /var/lib/mysql/* \
     && chmod u+s,g+s \
         /bin/ping \
         /bin/ping6 \
-        /usr/lib/nagios/plugins/check_icmp
+        /usr/lib/nagios/plugins/check_icmp 
 
 EXPOSE 80 443 5665
 

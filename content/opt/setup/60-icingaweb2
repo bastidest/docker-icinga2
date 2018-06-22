@@ -29,12 +29,20 @@ chown -R www-data:adm /var/log/icingaweb2
 mkdir -p /var/lib/php/sessions
 chown -R www-data:www-data /var/lib/php/sessions
 
+echo "=> Setting up icingaweb2 for apache using /usr/share/icingaweb2/public"
+icingacli module enable setup
+icingacli setup config webserver apache --document-root /usr/share/icingaweb2/public > /etc/apache2/sites-available/icingaweb2.conf
+a2ensite icingaweb2
+echo "=> Setting up icingaweb2 for apache using /usr/share/icingaweb2/public...done"
+
 # enable modules
 icingacli module enable monitoring
 icingacli module enable doc
 
 # Create MySQL user on localhost or test given connection
+echo "=> Creating MySQL user on localhost or test given connection"
 if [ "${ICINGA2_IDO_MYSQL_HOST}" == "localhost" ]; then
+	echo "==> localhost"
 	mysql_root <<-END
 	  CREATE DATABASE IF NOT EXISTS ${ICINGAWEB2_MYSQL_DATA}
 	    CHARACTER SET 'utf8';
@@ -44,6 +52,7 @@ if [ "${ICINGA2_IDO_MYSQL_HOST}" == "localhost" ]; then
 	    IDENTIFIED BY '${ICINGAWEB2_MYSQL_PASS}';
 	END
 elif [ -n "${MYSQL_ROOT_PASSWORD:-}" ]; then
+	echo "==> given connection"
 	mysql_root <<-END
 	  CREATE DATABASE IF NOT EXISTS ${ICINGAWEB2_MYSQL_DATA}
 	    CHARACTER SET 'utf8';

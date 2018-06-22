@@ -5,6 +5,8 @@
 mkdir -p /var/log/apache2
 chown -R www-data:adm /var/log/apache2
 
+a2enmod rewrite
+
 # Enable SSL support if certificates are mounted
 if [ -f /etc/apache2/ssl/icinga2.crt ] && [ -f /etc/apache2/ssl/icinga2.key ]; then
 

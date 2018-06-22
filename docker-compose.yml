@@ -1,7 +1,7 @@
 version: '2'
 services:
   icinga2:
-    image: jordan/icinga2
+    build: .
     restart: on-failure:5
     # Set your hostname to the FQDN under which your
     # sattelites will reach this container
@@ -44,7 +44,7 @@ services:
       - "443:443"
       - "5665:5665"
   graphite:
-    image: bebehei/graphite:latest
+    image: graphiteapp/graphite-statsd:latest
     restart: on-failure:5
     hostname: graphite
     volumes:

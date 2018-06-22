@@ -8,7 +8,7 @@ if evaluate_boolean "${ICINGA2_FEATURE_GRAPHITE}"; then
 
 	icinga2 feature enable graphite
 
-	cat >/etc/icinga2/features-available/graphite.conf <<-END
+	cat >/usr/local/etc/icinga2/features-available/graphite.conf <<-END
 	/**
 	 * The GraphiteWriter type writes check result metrics and
 	 * performance data to a graphite tcp socket.
