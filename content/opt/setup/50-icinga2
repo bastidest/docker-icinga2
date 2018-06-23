@@ -34,7 +34,10 @@ if [ ! -f "/etc/icinga2/pki/$(hostname).key" ]; then
 fi
 
 # Create MySQL user on localhost or test given connection
+echo "=> Creating MySQL database '${ICINGA2_IDO_MYSQL_DATA}' on localhost or test given connection"
+echo "=> Depending on your system, this may take a while"
 if [ "${ICINGA2_IDO_MYSQL_HOST}" == "localhost" ]; then
+	echo "==> localhost"
 	mysql_root <<-END
 	  CREATE DATABASE IF NOT EXISTS ${ICINGA2_IDO_MYSQL_DATA};
 	  GRANT ALL
@@ -43,6 +46,7 @@ if [ "${ICINGA2_IDO_MYSQL_HOST}" == "localhost" ]; then
 	    IDENTIFIED BY '${ICINGA2_IDO_MYSQL_PASS}';
 	END
 elif [ -n "${MYSQL_ROOT_PASSWORD:-}" ]; then
+	echo "==> given connection"
 	mysql_root <<-END
 	  CREATE DATABASE IF NOT EXISTS ${ICINGA2_IDO_MYSQL_DATA};
 	  GRANT ALL
@@ -51,15 +55,18 @@ elif [ -n "${MYSQL_ROOT_PASSWORD:-}" ]; then
 	    IDENTIFIED BY '${ICINGA2_IDO_MYSQL_PASS}';
 	END
 fi
+echo "=> Creating MySQL database '${ICINGA2_IDO_MYSQL_DATA}' on localhost or test given connection...done"
 
 echo "=> Testing MySQL credentials"
 mysql_test_credentials
 echo "=> Testing MySQL credentials...success"
 
+echo "=> Ensure DB Schema for icinga2"
 mysql_user \
 	< /usr/share/icinga2/lib/db_ido_mysql/schema/mysql.sql \
 	>> /usr/local/var/log/icinga2/mysql-schema.log \
 	2>&1 || true
+echo "=> Ensure DB Schema for icinga2...done"
 
 cat > /usr/local/etc/icinga2/features-available/ido-mysql.conf <<-END
 /**
