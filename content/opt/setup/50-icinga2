@@ -28,8 +28,7 @@ chown -R icinga:www-data /usr/local/var/lib/icinga2
 icinga2 feature enable ido-mysql livestatus compatlog command
 
 #icinga2 API cert - regenerate new private key and certificate when running in a new container
-# todo check this
-if [ ! -f "/etc/icinga2/pki/$(hostname).key" ]; then
+if [ ! -f "/usr/local/etc/icinga2/conf.d/api-users.conf" ]; then
 	icinga2 node setup --master
 fi
 
