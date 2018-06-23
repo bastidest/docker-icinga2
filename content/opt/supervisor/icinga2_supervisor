@@ -11,18 +11,23 @@ if    evaluate_boolean "${ICINGA2_FEATURE_DIRECTOR}" \
     echo "=> Running Icinga Director Kickstart"
     # todo check if icinga is up another way
     sleep 10s
-    echo "=> icingacli director migration run"
+    echo "=> Migrate the Icinga Director database"
     icingacli director migration run
-    echo "=> icingacli director kickstart required --verbose"
-    icingacli director kickstart required --verbose
-    echo "=> icingacli director kickstart run"
-	icingacli director kickstart run &
-    KICKSTARTERPID=$!
-    sleep 10
-    kill $KICKSTARTERPID
-    echo "=> icingacli director config deploy"
-    icingacli director config deploy
+    echo "=> Check if a Kickstart configuration is required"
+    if icingacli director kickstart required --verbose | grep -q 'should be triggered'; then
+        echo "==> Kickstart configuration is required"
+        echo "==> Running Kickstarter configuration, killing after 10s"
+        icingacli director kickstart run &
+        KICKSTARTERPID=$!
+        sleep 10
+        kill $KICKSTARTERPID
+        echo "==> Running Kickstarter configuration, killing after 10s...done"
+        echo "==> Deploying new configuration, restarting Icinga2"
+        icingacli director config deploy
+    fi
 fi
+
+echo "=> Icinga2 boot complete"
 
 # Allow any signal which would kill a process to stop server
 trap "killall icinga2" HUP INT QUIT ABRT ALRM TERM TSTP
