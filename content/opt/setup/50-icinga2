@@ -29,6 +29,7 @@ icinga2 feature enable ido-mysql livestatus compatlog command
 
 #icinga2 API cert - regenerate new private key and certificate when running in a new container
 if [ ! -f "/usr/local/etc/icinga2/conf.d/api-users.conf" ]; then
+	echo "=> Regenerate new private key and certificate"
 	icinga2 node setup --master
 fi
 
