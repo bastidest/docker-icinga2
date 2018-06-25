@@ -1,7 +1,9 @@
-version: '2'
+version: '2.1'
 services:
   icinga2:
     build: .
+    networks:
+      - mainnet
     restart: on-failure:5
     # Set your hostname to the FQDN under which your
     # sattelites will reach this container
@@ -45,6 +47,8 @@ services:
       - "5665:5665"
   graphite:
     image: graphiteapp/graphite-statsd:latest
+    networks:
+      - mainnet
     restart: on-failure:5
     hostname: graphite
     volumes:
@@ -54,9 +58,24 @@ services:
       - ./data/graphite/log/carbon:/var/log/carbon
   mysql:
     image: mariadb:10.1
+    networks:
+      - mainnet
+    restart: on-failure:5
     env_file:
       - secrets_sql.env
     volumes:
       - ./data/mysql/data:/var/lib/mysql
       # If you have previously used the container's internal DB use:
       #- ./data/icinga/lib/mysql:/var/lib/mysql
+
+networks:
+  mainnet:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24
+        gateway: 172.16.238.1
+      - subnet: 2001:3984:3989::/64
+        gateway: 2001:3984:3989::1
