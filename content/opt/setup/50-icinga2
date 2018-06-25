@@ -17,6 +17,8 @@ mysql_wait \
 if [ ! "$(ls -A /usr/local/etc/icinga2)" ]; then
 	echo "=> Copying fresh config-files for /usr/local/etc/icinga2"
 	cp -R /usr/local/etc/icinga2.dist/* /usr/local/etc/icinga2/
+	echo "=> Patching icinga services configuration"
+	patch < /var/patches/services.conf.patch /usr/local/etc/icinga2/conf.d/services.conf
 fi
 
 chown -R icinga:www-data /usr/local/var/cache/icinga2
