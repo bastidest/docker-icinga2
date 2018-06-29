@@ -12,6 +12,7 @@ services:
       - secrets_sql.env
     environment:
       - ICINGA2_FEATURE_GRAPHITE=1
+      - ICINGA2_CLEAR_CONFIG=1
       # Important:
       # keep the hostname graphite the same as
       # the name of the graphite docker-container
