@@ -110,6 +110,10 @@ RUN mkdir -p /usr/local/share/icingaweb2/modules/ \
     && rm aws.zip \
     && true
 
+RUN (cd /usr/lib/nagios/plugins\
+    && wget https://raw.githubusercontent.com/hugme/Nag_checks/master/check_linux_memory\
+    && chmod +x check_linux_memory )
+
 ADD content/ /
 
 # Final fixes
