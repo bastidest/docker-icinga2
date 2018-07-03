@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COMPOSE_PROJECT_NAME=icingaclient
+export COMPOSE_PROJECT_NAME=icingaclient
 
 if [ "$1" == "reset" ]; then
     docker-compose -f icinga-client.yml down &&\
