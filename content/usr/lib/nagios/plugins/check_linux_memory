@@ -25,10 +25,12 @@ if [ -n "$1" ]; then
     exit $STATE_WARNING
 fi
 
-OUTPUT=$(awk -v warn="$OPT_WARN" -v crit="$OPT_CRIT" '
-/MemTotal:/ { total=$2 }
-/MemAvailable:/ { used=total-$2 }
+OUTPUT=$(awk -v warn="$OPT_WARN" -v crit="$OPT_CRIT" -v low=$(grep low /proc/zoneinfo | awk '{k+=$2}END{print k}') '
+{a[$1]=$2}
 {
+    total=a["MemTotal:"];
+    available=a["MemFree:"]+a["Active(file):"]+a["Inactive(file):"]+a["SReclaimable:"]-(12*low);
+    used=total-available;
     percentage=used/total*100;
     if(percentage > crit) {
         status="CRIT";
