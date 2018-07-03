@@ -110,10 +110,6 @@ RUN mkdir -p /usr/local/share/icingaweb2/modules/ \
     && rm aws.zip \
     && true
 
-RUN (cd /usr/lib/nagios/plugins\
-    && wget https://raw.githubusercontent.com/hugme/Nag_checks/master/check_linux_memory\
-    && chmod +x check_linux_memory )
-
 ADD content/ /
 
 # Final fixes
@@ -121,6 +117,7 @@ RUN true \
     && mv /usr/local/etc/icinga2/ /usr/local/etc/icinga2.dist \
     && mkdir -p /usr/local/etc/icinga2 \
     && usermod -aG icingaweb2 www-data \
+    && chmod +x /usr/lib/nagios/plugins/check_linux_memory\
     && rm -rf \
         /var/lib/mysql/* \
     && chmod u+s,g+s \

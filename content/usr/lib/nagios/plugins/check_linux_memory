@@ -1,0 +1,53 @@
+#!/bin/bash
+
+exec 2>&1
+
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_DEPENDENT=4
+
+# Get options
+for o; do
+    case "${o}" in
+        -w)        shift; OPT_WARN="${1}"; shift; ;;
+        -c)        shift; OPT_CRIT="${1}"; shift; ;;
+        -*)        echo "Unknown option ${o}."; exit $STATE_UNKNOWN; ;;
+    esac
+done
+OPT_WARN=${OPT_WARN:-90}
+OPT_CRIT=${OPT_CRIT:-95}
+
+# if there are still arguments left
+if [ -n "$1" ]; then
+    echo "WARN spurious command-line options: $@"
+    exit $STATE_WARNING
+fi
+
+OUTPUT=$(awk -v warn="$OPT_WARN" -v crit="$OPT_CRIT" '
+/MemTotal:/ { total=$2 }
+/MemAvailable:/ { used=total-$2 }
+{
+    percentage=used/total*100;
+    if(percentage > crit) {
+        status="CRIT";
+    } else if(percentage > warn) {
+        status="WARN";
+    } else {
+        status="OK";
+    }
+}
+END { printf "%s - %.2f%% used - Total:%dKB |used=%dKB;%d;%d;0;%d\n", status, used/total*100, total, used, total*warn/100, total*crit/100, total }
+' /proc/meminfo)
+
+
+EXITSTATUS=$STATE_UNKNOWN
+case "${OUTPUT}" in
+    UNK*)  EXITSTATUS=$STATE_UNKNOWN;  ;;
+    OK*)   EXITSTATUS=$STATE_OK;       ;;
+    WARN*) EXITSTATUS=$STATE_WARNING;  ;;
+    CRIT*) EXITSTATUS=$STATE_CRITICAL; ;;
+esac
+echo "MEMORY ${OUTPUT}"
+exit $EXITSTATUS
