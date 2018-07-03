@@ -115,6 +115,7 @@ ADD content-full/ /
 
 # Final fixes
 RUN true \
+    && chmod -R +x /usr/local/etc/icinga2/scripts\
     && mv /usr/local/etc/icinga2/ /usr/local/etc/icinga2.dist \
     && mkdir -p /usr/local/etc/icinga2 \
     && usermod -aG icingaweb2 www-data \
