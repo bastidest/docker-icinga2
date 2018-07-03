@@ -111,6 +111,7 @@ RUN mkdir -p /usr/local/share/icingaweb2/modules/ \
     && true
 
 ADD content/ /
+ADD content-full/ /
 
 # Final fixes
 RUN true \

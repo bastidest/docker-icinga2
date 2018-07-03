@@ -1,0 +1,31 @@
+version: '2.1'
+services:
+  icinga2:
+    build:
+      context: .
+      dockerfile: ./icinga-client.Dockerfile
+    networks:
+      - mainnet
+    restart: on-failure:5
+    env_file:
+      - .env
+    hostname: ${ICINGA2_CLIENT_HOSTNAME}
+    volumes:
+      - ./data-client/icinga/cache:/usr/local/var/cache/icinga2
+      - ./data-client/icinga/etc/icinga2:/usr/local/etc/icinga2
+      - ./data-client/icinga/lib/icinga2:/usr/local/var/lib/icinga2
+      - ./data-client/icinga/log/icinga2:/usr/local/var/log/icinga2
+      - ./data-client/icinga/spool:/var/spool/icinga2
+      - ./master.crt:/opt/master.crt:ro
+
+networks:
+  mainnet:
+    enable_ipv6: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.1.0.0/24
+        gateway: 10.1.0.1
+      - subnet: fd03:50ff:a28e:68ac::/64
+        gateway: fd03:50ff:a28e:68ac::1

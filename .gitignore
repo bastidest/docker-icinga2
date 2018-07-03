@@ -1,3 +1,5 @@
-/docker-compose.override.yml
-/data
-/*.env
+docker-compose.override.yml
+data-full
+data-client
+*.env
+master.crt
