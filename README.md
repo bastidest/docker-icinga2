@@ -5,9 +5,7 @@
 Highly experimental docker images for icinga master server and agent clients.
 
 ## Credits
-Created by [Marek Obuchowicz](https://github.com/marek-obuchowicz) from [KoreKontrol](https://www.korekontrol.eu/).
-
-Many thanks to the author of original repo, [Jordan Jethwa](https://github.com/jjethwa)
+Original author of the repo: [Jordan Jethwa](https://github.com/jjethwa)
 
 ## License
 [GPL](LICENSE)
