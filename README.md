@@ -1,12 +1,16 @@
-# icinga2
+# icinga2-docker
 
-This repository contains the source for the [icinga2](https://www.icinga.org/icinga2/) [docker](https://www.docker.com) image.
+⚠️⚠️⚠️ Warning ⚠️⚠️⚠️ Outdated documentation, use at your own risk.
 
-The dockerhub-repository is located at [https://hub.docker.com/r/jordan/icinga2/](https://hub.docker.com/r/jordan/icinga2/).
+Highly experimental docker images for icinga master server and agent clients.
 
-This build is automated by push for the git-repo. Just crawl it via:
+## Credits
+Created by [Marek Obuchowicz](https://github.com/marek-obuchowicz) from [KoreKontrol](https://www.korekontrol.eu/).
 
-    docker pull jordan/icinga2
+Many thanks to the author of original repo, [Jordan Jethwa](https://github.com/jjethwa)
+
+## License
+[GPL](LICENSE)
 
 ## Image details
 
