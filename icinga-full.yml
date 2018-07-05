@@ -59,6 +59,7 @@ services:
       - ./data-full/graphite/log/apache:/var/log/apache2
       - ./data-full/graphite/log/graphite:/var/log/graphite
       - ./data-full/graphite/log/carbon:/var/log/carbon
+      - ./content-graphite/storage-aggregation.conf:/opt/graphite/conf/storage-aggregation.conf:ro
   mysql:
     image: mariadb:10.1
     networks:
@@ -68,8 +69,6 @@ services:
       - secrets_sql.env
     volumes:
       - ./data-full/mysql/data:/var/lib/mysql
-      # If you have previously used the container's internal DB use:
-      #- ./data/icinga/lib/mysql:/var/lib/mysql
 
 networks:
   mainnet:
